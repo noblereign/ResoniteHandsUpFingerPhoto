@@ -10,7 +10,7 @@ public class HandsUpFingerPhoto : ResoniteMod {
 	public override string Name => "HandsUpFingerPhoto";
 	public override string Author => "Noble";
 	public override string Version => VERSION_CONSTANT;
-	public override string Link => "https://github.com/resonite-modding-group/HandsUpFingerPhoto/";
+	public override string Link => "https://github.com/noblereign/ResoniteHandsUpFingerPhoto/";
 
 	public static ModConfiguration config;
 
