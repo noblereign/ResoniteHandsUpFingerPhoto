@@ -1,14 +1,12 @@
 # HandsUpFingerPhoto
 
 A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader) mod for [Resonite](https://resonite.com/) that replaces the finger photo gesture with one that's easier to do.
-<!-- Edit to describe what your mod does and what it may solve -->
-<!-- If your mod solves an issue, you should link to any relevant issues on the resonite github -->
 
 ## Usage
 Bring both of your hands up close to your head, facing vertically and parallel to each other.
 
-## Screenshots
-<!-- If your mod has visible effects in the game, attach some images or video of it in-use here! Otherwise remove this section -->
+## Demonstration
+https://github.com/user-attachments/assets/59d4998b-9274-4755-8584-99669667ee0b
 
 ## Special Thanks
 **LuxKitty** for showing me their in-game creation that inspired this mod. They're basically the one that came up with the gesture!
