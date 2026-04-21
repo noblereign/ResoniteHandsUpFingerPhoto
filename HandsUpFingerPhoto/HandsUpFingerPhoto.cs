@@ -6,7 +6,7 @@ using ResoniteModLoader;
 
 namespace HandsUpFingerPhoto;
 public class HandsUpFingerPhoto : ResoniteMod {
-	internal const string VERSION_CONSTANT = "1.0.0";
+	internal const string VERSION_CONSTANT = "1.1.1";
 	public override string Name => "HandsUpFingerPhoto";
 	public override string Author => "Noble";
 	public override string Version => VERSION_CONSTANT;
@@ -23,6 +23,12 @@ public class HandsUpFingerPhoto : ResoniteMod {
 
 	[AutoRegisterConfigKey]
 	private static ModConfigurationKey<float> DISTANCE_THRESHOLD = new ModConfigurationKey<float>("Starting distance", "Adjust how close your hands have to be to your face to begin a finger photo.", () => 0.275f);
+
+	[AutoRegisterConfigKey]
+	private static ModConfigurationKey<float> SEPERATION_THRESHOLD_MIN = new ModConfigurationKey<float>("Hands minimum distance", "Adjust how close your controllers have to be to each other to begin a finger photo.", () => 0.1f);
+	
+	[AutoRegisterConfigKey]
+	private static ModConfigurationKey<float> SEPERATION_THRESHOLD_MAX = new ModConfigurationKey<float>("Hands maximum distance", "Adjust how far your controllers can be from one another during a finger photo.", () => 0.38f);
 
 	[AutoRegisterConfigKey]
 	private static ModConfigurationKey<float> DEPTH_OFFSET = new ModConfigurationKey<float>("Depth offset", "Adjusts how close the camera preview will be to your face.", () => 0f);
@@ -44,8 +50,8 @@ public class HandsUpFingerPhoto : ResoniteMod {
 		harmony.PatchAll();
 	}
 
-	public static float HandToHandMaxDist = 0.38f;
-	public static float HandToHandMinDist = 0.1f;
+	//public static float HandToHandMaxDist = 0.38f;
+	//public static float HandToHandMinDist = 0.1f;
 
 	public static float BakedForwardOffset = 0.05f;
 	public static float BakedUpwardsOffset = 0.05f;
@@ -63,6 +69,7 @@ public class HandsUpFingerPhoto : ResoniteMod {
 				float DistanceThreshold = config.GetValue(DISTANCE_THRESHOLD);
 
 				float userScale = __instance.LocalUserRoot.GlobalScale;
+				float dividableUserScale = MathX.Max(userScale, 0.0001f);
 				Slot HeadSlot = __instance.LocalUserRoot.HeadSlot;
 				Slot RightHandSlot = __instance.LocalUserRoot.RightHandSlot;
 				Slot LeftHandSlot = __instance.LocalUserRoot.LeftHandSlot;
@@ -81,8 +88,8 @@ public class HandsUpFingerPhoto : ResoniteMod {
 
 				bool closeToRight = distHeadToRight <= (__instance._fingerGestureCharge < 0.1f ? (userScale * DistanceThreshold) : (userScale * (__instance.MaxDistance + distanceLeeway)));
 				bool closeToLeft = distHeadToLeft <= (__instance._fingerGestureCharge < 0.1f ? (userScale * DistanceThreshold) : (userScale * (__instance.MaxDistance + distanceLeeway)));
-				bool handsClose = distHands <= (userScale * HandToHandMaxDist);
-				bool handsNotColliding = distHands >= (userScale * HandToHandMinDist);
+				bool handsClose = distHands <= (userScale * config.GetValue(SEPERATION_THRESHOLD_MAX));
+				bool handsNotColliding = distHands >= (userScale * config.GetValue(SEPERATION_THRESHOLD_MIN));
 
 				bool isHoldingPose = rightWristAngle1 && leftWristAngle1 && rightWristAngle2 && leftWristAngle2 &&
 								closeToRight && closeToLeft && handsClose && handsNotColliding;
@@ -115,9 +122,9 @@ public class HandsUpFingerPhoto : ResoniteMod {
 					float3 gestureDirectionGlobal = MathX.Cross(directionBetweenHands, averageHandUp).Normalized;
 					gesture.direction = __instance._previewRoot.Target.Parent.GlobalVectorToLocal(gestureDirectionGlobal);
 
-					gesture.center = ((LeftHandSlot.GlobalPosition + RightHandSlot.GlobalPosition) * 0.5f) + (gestureDirectionGlobal * (BakedForwardOffset + config.GetValue(DEPTH_OFFSET))) + (averageHandUp * (BakedUpwardsOffset + config.GetValue(HEIGHT_OFFSET)));
-					gesture.size = MathX.Distance(LeftHandSlot.GlobalPosition, RightHandSlot.GlobalPosition) * 0.85f;
-					gesture.distance = MathX.Distance(HeadSlot.GlobalPosition, gesture.center) / __instance.LocalUserRoot.GlobalScale;
+					gesture.center = ((LeftHandSlot.GlobalPosition + RightHandSlot.GlobalPosition) * 0.5f) + (((gestureDirectionGlobal * (BakedForwardOffset + config.GetValue(DEPTH_OFFSET))) + (averageHandUp * (BakedUpwardsOffset + config.GetValue(HEIGHT_OFFSET)))) * userScale);
+					gesture.size = (distHands / dividableUserScale) * 0.85f;
+					gesture.distance = MathX.Distance(HeadSlot.GlobalPosition, gesture.center) / dividableUserScale;
 
 					gesture.leftCorner = __instance._timerRoot.Target.Parent.GlobalPointToLocal(LeftHandSlot.GlobalPosition + (averageHandUp * .2f));
 					gesture.rightCorner = __instance._timerRoot.Target.Parent.GlobalPointToLocal(RightHandSlot.GlobalPosition - (averageHandUp * .2f));
