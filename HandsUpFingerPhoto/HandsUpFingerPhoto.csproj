@@ -20,7 +20,7 @@
 	<ItemGroup>
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" />
 		<PackageReference Include="ResoniteModLoader" Version="5.0.1" />
-		<PackageReference Include="Lib.Harmony" Version="2.4.2" />
+		<PackageReference Include="Lib.Harmony" Version="2.4.3" />
     <Reference Include="FrooxEngine" Publicize="true">
       <HintPath>$(ResonitePath)FrooxEngine.dll</HintPath>
       <Private>False</Private>
